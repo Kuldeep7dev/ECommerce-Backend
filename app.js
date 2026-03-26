@@ -20,6 +20,7 @@ var reviewRouter = require('./routes/review');
 
 var dotenv = require('dotenv');
 const passport = require('passport');
+const MongoStore = require('connect-mongo').MongoStore;
 var app = express();
 
 dotenv.config();
@@ -49,6 +50,7 @@ app.use(require('express-session')({
   secret: 'supersecretkey',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,

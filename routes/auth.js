@@ -3,19 +3,6 @@ const { default: Auth } = require('../Model/Auth');
 var bcrypt = require('bcrypt');
 var router = express.Router();
 
-router.get('/signup', async (req, res) => {
-    try {
-        const getUser = await Auth.find();
-        res.status(200).json({
-            message: "Successfull",
-            user: getUser
-        });
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error'
-        });
-    };
-})
 
 router.get('/view/:id', async (req, res) => {
     try {
