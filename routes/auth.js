@@ -28,7 +28,7 @@ router.get('/view/:id', async (req, res) => {
 
 router.post('/signup', async (req, res) => {
     try {
-        const { fullName, email, phoneNumber, password } = req.body;
+        const { fullName, email, phoneNumber, password, role } = req.body;
 
 
         if (!fullName || !email || !phoneNumber || !password) {
@@ -45,12 +45,14 @@ router.post('/signup', async (req, res) => {
             email,
             password: hashedPassword,
             phoneNumber,
+            role: role || "user"
         });
         res.status(201).json({
             message: "user post successfully",
             user: user
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             message: 'Error'
         });
