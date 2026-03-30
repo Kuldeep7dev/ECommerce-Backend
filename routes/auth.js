@@ -3,6 +3,34 @@ const { default: Auth } = require('../Model/Auth');
 var bcrypt = require('bcrypt');
 var router = express.Router();
 
+router.get('/', async (req, res) => {
+    try {
+        const data = await Auth.find();
+        res.status(200).json({
+            message: "Successfully get the user data",
+            user: data
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Error when data get"
+        })
+    }
+})
+
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await Auth.findById(id);
+        res.status(200).json({
+            message: "Successfully get id based data",
+            user: data
+        })
+    } catch (error) {
+        res.status(400).json({
+            message: "Error when data get by id"
+        })
+    }
+})
 
 router.get('/view/:id', async (req, res) => {
     try {
@@ -14,7 +42,7 @@ router.get('/view/:id', async (req, res) => {
                 message: "User not found"
             })
         }
-        
+
         res.status(200).json({
             message: "Successfull",
             user: viewData
@@ -23,6 +51,22 @@ router.get('/view/:id', async (req, res) => {
         res.status(500).json({
             message: 'Error'
         });
+    }
+});
+
+router.put('/update/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = req.body;
+        const updateData = await Auth.findByIdAndUpdate(id, data);
+        res.status(200).json({
+            message: "Successfully update the user data",
+            user: updateData
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Error when update the data"
+        })
     }
 })
 

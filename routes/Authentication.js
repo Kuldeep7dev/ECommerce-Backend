@@ -57,7 +57,14 @@ router.post('/login', async (req, res, next) => {
             })(req, res, next);
         });
 
-        // wrap req.logIn also
+        // 🔴 ROLE CHECK HERE
+        if (user.role !== "admin") {
+            return res.status(403).json({
+                message: "Access denied: Admins only 🚫"
+            });
+        }
+
+        // login session
         await new Promise((resolve, reject) => {
             req.logIn(user, (err) => {
                 if (err) return reject(err);
@@ -65,9 +72,12 @@ router.post('/login', async (req, res, next) => {
             });
         });
 
+        // remove password
+        const { password, ...safeUser } = user._doc;
+
         return res.json({
-            message: "Login Successful ✅",
-            user
+            message: "Admin Login Successful ✅",
+            user: safeUser
         });
 
     } catch (err) {
