@@ -8,6 +8,7 @@ router.get('/', async (req, res) => {
     try {
         const resData = await Auth.find();
         res.status(200).json({
+            message: "Successfully get the data",
             authenticate: resData
         })
     } catch (error) {
