@@ -94,4 +94,4 @@ productsSchema.pre("save", async function () {
 });
 
 const Products = mongoose.model("Products", productsSchema);
-export default Products;
+export default Products

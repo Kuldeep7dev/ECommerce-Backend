@@ -1,135 +1,190 @@
-var express = require('express');
+const express = require('express');
+const passport = require('passport');
+const { validateSignup, validateLogin } = require('../middleware/validate');
+const { isAuthenticated, isAdmin } = require('../middleware/requireAuth');
+const handleError = require('../utils/handleError');
 const { default: Auth } = require('../Model/Auth');
-var bcrypt = require('bcrypt');
-var router = express.Router();
 
-router.get('/', async (req, res) => {
-    try {
-        const data = await Auth.find();
-        res.status(200).json({
-            message: "Successfully get the user data",
-            user: data
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: "Error when data get"
-        })
-    }
-})
+const router = express.Router();
 
-router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const data = await Auth.findById(id);
-        res.status(200).json({
-            message: "Successfully get id based data",
-            user: data
-        })
-    } catch (error) {
-        res.status(400).json({
-            message: "Error when data get by id"
-        })
-    }
-})
-
-router.get('/view/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const viewData = await Auth.findById(id);
-
-        if (!viewData) {
-            return res.status(404).json({
-                message: "User not found"
-            })
-        }
-
-        res.status(200).json({
-            message: "Successfull",
-            user: viewData
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Error'
-        });
-    }
-});
-
-router.put('/update/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const data = req.body;
-        const updateData = await Auth.findByIdAndUpdate(id, data);
-        res.status(200).json({
-            message: "Successfully update the user data",
-            user: updateData
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: "Error when update the data"
-        })
-    }
-})
-
-router.post('/signup', async (req, res) => {
+/**
+ * @route   POST /auth/signup
+ * @desc    Register a new user
+ * @access  Public
+ */
+router.post('/signup', validateSignup, async (req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
-
-
-        if (!fullName || !email || !phoneNumber || !password) {
-            return res.status(400).json({
-                message: "All fiels is required"
-            });
-        };
-
-        const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(password, saltRounds)
 
         const user = await Auth.create({
             fullName,
             email,
-            password: hashedPassword,
+            password,
             phoneNumber,
             role: role || "user"
         });
+
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
         res.status(201).json({
-            message: "user post successfully",
-            user: user
+            message: "User registered successfully ✅",
+            user: userResponse
         });
     } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: 'Error'
-        });
-    };
+        console.log('Signup error:', error);
+        const errorMessage = handleError(error);
+        res.status(400).json({ message: errorMessage });
+    }
 });
 
-router.delete('/delete/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleteUser = await Auth.findByIdAndDelete(id);
-        res.status(200).json({
-            message: "successfully delete users",
-            user: deleteUser
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server error while delete users'
-        });
-    }
-})
-
-router.post('/logout', (req, res) => {
-    req.logout(function (err) {
-        if (err) {
-            return res.status(500).json({ message: "Logout failed" })
+/**
+ * @route   POST /auth/login
+ * @desc    Login user
+ * @access  Public
+ */
+router.post('/login', validateLogin, (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) return next(err);
+        if (!user) {
+            return res.status(401).json({ message: info?.message || "Login failed" });
         }
 
-        req.session.destroy(() => {
-            res.clearCookie("connect.sid")
-            res.json({ message: "Logged out successfully ✅" })
-        })
-    })
+        req.logIn(user, (err) => {
+            if (err) return next(err);
+            
+            const userResponse = user.toObject();
+            delete userResponse.password;
+
+            return res.json({
+                message: "Login successful ✅",
+                user: userResponse
+            });
+        });
+    })(req, res, next);
 });
 
+/**
+ * @route   GET /auth/me
+ * @desc    Get current user profile
+ * @access  Private
+ */
+router.get('/me', isAuthenticated, (req, res) => {
+    res.status(200).json({
+        user: req.user
+    });
+});
 
+/**
+ * @route   POST /auth/logout
+ * @desc    Logout user
+ * @access  Private
+ */
+router.post('/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        req.session.destroy(() => {
+            res.clearCookie("connect.sid");
+            res.json({ message: "Logged out successfully ✅" });
+        });
+    });
+});
+
+// ================= USER MANAGEMENT (ADMIN ONLY) ================= //
+
+/**
+ * @route   GET /auth/users
+ * @desc    Get all users
+ * @access  Admin
+ */
+router.get('/', isAdmin, async (req, res) => {
+    try {
+        const users = await Auth.find().select('-password');
+        res.status(200).json({
+            message: "Users retrieved successfully",
+            users
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving users" });
+    }
+});
+
+/**
+ * @route   GET /auth/:id
+ * @desc    Get user by ID
+ * @access  Admin/Self
+ */
+router.get('/:id', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Only allow admin or the user themselves to view their details
+        if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        const user = await Auth.findById(id).select('-password');
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        res.status(200).json({
+            message: "User retrieved successfully",
+            user
+        });
+    } catch (error) {
+        res.status(400).json({ message: "Error retrieving user" });
+    }
+});
+
+/**
+ * @route   PUT /auth/update/:id
+ * @desc    Update user details
+ * @access  Admin/Self
+ */
+router.put('/update/:id', isAuthenticated, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+
+        // Only allow admin or the user themselves to update
+        if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
+            return res.status(403).json({ message: "Access denied" });
+        }
+
+        // Prevent changing sensitive fields unless admin
+        if (req.user.role !== 'admin') {
+            delete updates.role;
+        }
+
+        // Don't update password here (should be a separate route)
+        delete updates.password;
+
+        const updatedUser = await Auth.findByIdAndUpdate(id, updates, { new: true }).select('-password');
+        res.status(200).json({
+            message: "User updated successfully",
+            user: updatedUser
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error updating user" });
+    }
+});
+
+/**
+ * @route   DELETE /auth/delete/:id
+ * @desc    Delete user
+ * @access  Admin
+ */
+router.delete('/delete/:id', isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedUser = await Auth.findByIdAndDelete(id);
+        if (!deletedUser) return res.status(404).json({ message: "User not found" });
+
+        res.status(200).json({
+            message: "User deleted successfully",
+            user: deletedUser
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error deleting user" });
+    }
+});
 module.exports = router;

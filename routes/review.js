@@ -1,6 +1,6 @@
 var express = require('express');
-const { default: Review } = require('../Model/review');
-const { default: Products } = require('../Model/Products');
+const Review = require('../Model/Review');
+const Products = require('../Model/Products');
 var router = express.Router();
 
 router.get('/', async (req, res) => {

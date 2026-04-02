@@ -14,7 +14,6 @@ var productRouter = require('./routes/product')
 
 // ============== FOR USER ============== //
 var authRouter = require('./routes/auth');
-var authentiateRouter = require('./routes/Authentication');
 var notificationRouter = require('./routes/notification');
 var reviewRouter = require('./routes/review');
 
@@ -67,7 +66,6 @@ app.use('/users', usersRouter);
 app.use('/uploadimage', fileRouter);
 app.use('/product', productRouter);
 app.use('/auth', authRouter);
-app.use('/authenticate', authentiateRouter);
 app.use('/notification', notificationRouter);
 app.use('/review', reviewRouter);
 

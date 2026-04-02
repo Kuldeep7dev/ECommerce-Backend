@@ -1,7 +1,7 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
-const { default: Auth } = require('./Model/Auth');
+const Auth = require('./Model/Auth');
 
 // LOGIN USING EMAIL + PASSWORD
 passport.use(
@@ -13,14 +13,14 @@ passport.use(
                 const user = await Auth.findOne({ email: email });
 
                 if (!user) {
-                    return done(null, false, { message: 'Invalid email' });
+                    return done(null, false, { message: 'Incorrect email or password' }); // Generic message for security
                 }
 
-                // compare password (MUST await)
-                const isMatch = await bcrypt.compare(password, user.password);
+                // compare password (using model method)
+                const isMatch = await user.comparePassword(password);
 
                 if (!isMatch) {
-                    return done(null, false, { message: 'Wrong password' });
+                    return done(null, false, { message: 'Incorrect email or password' });
                 }
 
                 // success
