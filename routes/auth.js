@@ -3,25 +3,19 @@ const passport = require('passport');
 const { validateSignup, validateLogin } = require('../middleware/validate');
 const { isAuthenticated, isAdmin } = require('../middleware/requireAuth');
 const handleError = require('../utils/handleError');
-const { default: Auth } = require('../Model/Auth');
+const Auth = require('../Model/Auth');
 
 const router = express.Router();
 
-/**
- * @route   POST /auth/signup
- * @desc    Register a new user
- * @access  Public
- */
 router.post('/signup', validateSignup, async (req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
-
         const user = await Auth.create({
             fullName,
             email,
             password,
             phoneNumber,
-            role: role || "user"
+            role: "user" // ✅ Always default to user for public signup
         });
 
         const userResponse = user.toObject();
@@ -32,9 +26,17 @@ router.post('/signup', validateSignup, async (req, res) => {
             user: userResponse
         });
     } catch (error) {
-        console.log('Signup error:', error);
+        console.log('Signup error details:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code,
+            keyValue: error.keyValue
+        });
         const errorMessage = handleError(error);
-        res.status(400).json({ message: errorMessage });
+        res.status(error.code === 11000 ? 400 : 500).json({
+            message: errorMessage,
+            error: (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'DEVELOPMENT') ? error.message : undefined
+        });
     }
 });
 
@@ -52,7 +54,7 @@ router.post('/login', validateLogin, (req, res, next) => {
 
         req.logIn(user, (err) => {
             if (err) return next(err);
-            
+
             const userResponse = user.toObject();
             delete userResponse.password;
 
@@ -90,7 +92,43 @@ router.post('/logout', (req, res, next) => {
     });
 });
 
-// ================= USER MANAGEMENT (ADMIN ONLY) ================= //
+/**
+ * @route   POST /auth/
+ * @desc    Create a new user (Admin only)
+ * @access  Admin
+ */
+router.post('/', isAdmin, async (req, res) => {
+    try {
+        const { fullName, email, phoneNumber, password, role } = req.body;
+
+        const user = await Auth.create({
+            fullName,
+            email,
+            password,
+            phoneNumber,
+            role: role || "user"
+        });
+
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        res.status(201).json({
+            message: "User created successfully ✅",
+            user: userResponse
+        });
+    } catch (error) {
+        console.error('Admin user creation error details:', {
+            message: error.message,
+            stack: error.stack,
+            code: error.code
+        });
+        const errorMessage = handleError(error);
+        res.status(error.code === 11000 ? 400 : 500).json({
+            message: errorMessage,
+            error: (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'DEVELOPMENT') ? error.message : undefined
+        });
+    }
+});
 
 /**
  * @route   GET /auth/users
@@ -117,7 +155,7 @@ router.get('/', isAdmin, async (req, res) => {
 router.get('/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Only allow admin or the user themselves to view their details
         if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
             return res.status(403).json({ message: "Access denied" });
@@ -187,4 +225,5 @@ router.delete('/delete/:id', isAdmin, async (req, res) => {
         res.status(500).json({ message: "Error deleting user" });
     }
 });
+
 module.exports = router;

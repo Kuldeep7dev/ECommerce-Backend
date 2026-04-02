@@ -1,5 +1,5 @@
 var express = require('express');
-const Notification = require('../Model/Notification');
+const { default: Notification } = require('../Model/Notification');
 var router = express.Router();
 
 router.get('/', async (req, res) => {

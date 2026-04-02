@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 
 const authSchema = new mongoose.Schema({
     fullName: {
@@ -26,6 +26,7 @@ const authSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
+        minlength: 6,
         trim: true
     },
 
@@ -38,7 +39,7 @@ const authSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-// Pre-save hook to hash password
+// 🔐 HASH PASSWORD BEFORE SAVE
 authSchema.pre("save", async function () {
     // Only hash password if it has been modified (or is new)
     if (!this.isModified("password")) return;
@@ -51,10 +52,11 @@ authSchema.pre("save", async function () {
     }
 });
 
-// Method to compare password
+// 🔐 COMPARE PASSWORD METHOD
 authSchema.methods.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+    return bcrypt.compare(candidatePassword, this.password);
 };
+    
 
 const Auth = mongoose.model("Auth", authSchema);
-export default Auth
+module.exports = Auth;
