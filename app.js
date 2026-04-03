@@ -10,12 +10,13 @@ require('./passport');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var fileRouter = require('./routes/file');
-var productRouter = require('./routes/product')
+var productRouter = require('./routes/product');
 
 // ============== FOR USER ============== //
 var authRouter = require('./routes/auth');
 var notificationRouter = require('./routes/notification');
 var reviewRouter = require('./routes/review');
+var addtocartRouter = require('./routes/AddToCart');
 
 var dotenv = require('dotenv');
 const passport = require('passport');
@@ -68,6 +69,7 @@ app.use('/product', productRouter);
 app.use('/auth', authRouter);
 app.use('/notification', notificationRouter);
 app.use('/review', reviewRouter);
+app.use('/add-to-cart', addtocartRouter);
 
 
 app.use(function (req, res, next) {

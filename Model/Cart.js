@@ -27,7 +27,7 @@ const cartSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Auth",
             required: true,
-            unique: true, // one cart per user
+            unique: true,
         },
 
         items: [cartItemSchema],

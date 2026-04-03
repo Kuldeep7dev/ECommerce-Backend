@@ -7,6 +7,18 @@ const Auth = require('../Model/Auth');
 
 const router = express.Router();
 
+router.get('/', isAdmin, async (req, res) => {
+    try {
+        const users = await Auth.find().select('-password');
+        res.status(200).json({
+            message: "Users retrieved successfully",
+            users
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving users" });
+    }
+});
+
 router.post('/signup', validateSignup, async (req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
@@ -66,22 +78,14 @@ router.post('/login', validateLogin, (req, res, next) => {
     })(req, res, next);
 });
 
-/**
- * @route   GET /auth/me
- * @desc    Get current user profile
- * @access  Private
- */
+
 router.get('/me', isAuthenticated, (req, res) => {
     res.status(200).json({
         user: req.user
     });
 });
 
-/**
- * @route   POST /auth/logout
- * @desc    Logout user
- * @access  Private
- */
+
 router.post('/logout', (req, res, next) => {
     req.logout((err) => {
         if (err) return next(err);
@@ -92,11 +96,7 @@ router.post('/logout', (req, res, next) => {
     });
 });
 
-/**
- * @route   POST /auth/
- * @desc    Create a new user (Admin only)
- * @access  Admin
- */
+
 router.post('/', isAdmin, async (req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
@@ -130,28 +130,7 @@ router.post('/', isAdmin, async (req, res) => {
     }
 });
 
-/**
- * @route   GET /auth/users
- * @desc    Get all users
- * @access  Admin
- */
-router.get('/', isAdmin, async (req, res) => {
-    try {
-        const users = await Auth.find().select('-password');
-        res.status(200).json({
-            message: "Users retrieved successfully",
-            users
-        });
-    } catch (error) {
-        res.status(500).json({ message: "Error retrieving users" });
-    }
-});
 
-/**
- * @route   GET /auth/:id
- * @desc    Get user by ID
- * @access  Admin/Self
- */
 router.get('/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
@@ -173,11 +152,7 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-/**
- * @route   PUT /auth/update/:id
- * @desc    Update user details
- * @access  Admin/Self
- */
+
 router.put('/update/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
@@ -206,11 +181,7 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
     }
 });
 
-/**
- * @route   DELETE /auth/delete/:id
- * @desc    Delete user
- * @access  Admin
- */
+
 router.delete('/delete/:id', isAdmin, async (req, res) => {
     try {
         const { id } = req.params;
