@@ -17,6 +17,7 @@ var authRouter = require('./routes/auth');
 var notificationRouter = require('./routes/notification');
 var reviewRouter = require('./routes/review');
 var addtocartRouter = require('./routes/AddToCart');
+var wishlistRouter = require('./routes/Wishlist');
 
 var dotenv = require('dotenv');
 const passport = require('passport');
@@ -70,6 +71,7 @@ app.use('/auth', authRouter);
 app.use('/notification', notificationRouter);
 app.use('/review', reviewRouter);
 app.use('/add-to-cart', addtocartRouter);
+app.use('/wishlist', wishlistRouter);
 
 
 app.use(function (req, res, next) {
