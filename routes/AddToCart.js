@@ -1,6 +1,9 @@
 var express = require('express');
-const { default: Products } = require('../Model/Products');
-const { default: Cart } = require('../Model/Cart');
+const Products = require('../Model/Products');
+const Cart = require('../Model/Cart');
+const Auth = require('../Model/Auth');
+const Notification = require('../Model/Notification');
+const { emitToAdmins } = require('../utils/socket');
 const { isAuthenticated } = require('../middleware/requireAuth');
 var router = express.Router();
 
@@ -74,6 +77,30 @@ router.post('/', isAuthenticated, async (req, res) => {
         );
 
         await cart.save();
+
+        // Notify Admins
+        const admins = await Auth.find({ role: 'admin' });
+        const notificationData = {
+            type: "SYSTEM",
+            title: "New Cart Addition 🛒",
+            message: `A user added product: ${product.productName} (Quantity: ${quantity}) to their cart`,
+            entityId: product._id,
+            entityType: "Product"
+        };
+
+        for (const admin of admins) {
+            await Notification.create({
+                ...notificationData,
+                receiver: admin._id,
+                sender: userId
+            });
+        }
+
+        emitToAdmins("receiveNotification", {
+            ...notificationData,
+            createdAt: new Date()
+        });
+
         res.status(200).json(cart);
     } catch (error) {
         res.status(500).json({ message: error.message })

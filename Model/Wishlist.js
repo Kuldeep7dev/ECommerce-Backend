@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const wishlistItemSchema = new mongoose.Schema({
     productId: {
@@ -39,4 +39,4 @@ const wishListSchema = new mongoose.Schema({
 }, { timestamps: true })
 
 const Wishlist = mongoose.model("Wishlist", wishListSchema);
-export default Wishlist;
+module.exports = Wishlist;

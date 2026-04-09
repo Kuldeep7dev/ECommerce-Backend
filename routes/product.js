@@ -1,5 +1,5 @@
 var express = require("express");
-const { default: Products } = require("../Model/Products");
+const Products = require("../Model/Products");
 var router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -24,6 +24,21 @@ router.get("/", async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Error in sample get",
+    });
+    console.log(error);
+  }
+});
+
+router.get("/get-count", async (req, res) => {
+  try {
+    const data = await Products.countDocuments();
+    res.status(200).json({
+      message: "Successful",
+      product: data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error in products count",
     });
     console.log(error);
   }

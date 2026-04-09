@@ -4,6 +4,7 @@ const { validateSignup, validateLogin } = require('../middleware/validate');
 const { isAuthenticated, isAdmin } = require('../middleware/requireAuth');
 const handleError = require('../utils/handleError');
 const Auth = require('../Model/Auth');
+const Notification = require('../Model/Notification');
 
 const router = express.Router();
 
@@ -19,6 +20,18 @@ router.get('/', isAdmin, async (req, res) => {
     }
 });
 
+router.get('/get-count', isAdmin, async (req, res) => {
+    try {
+        const data = await Auth.countDocuments();
+        res.status(200).json({
+            message: "Users retrieved successfully",
+            user: data
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving users" });
+    }
+})
+
 router.post('/signup', validateSignup, async (req, res) => {
     try {
         const { fullName, email, phoneNumber, password, role } = req.body;
@@ -27,7 +40,14 @@ router.post('/signup', validateSignup, async (req, res) => {
             email,
             password,
             phoneNumber,
-            role: "user" // ✅ Always default to user for public signup
+            role: "user"
+        });
+
+        await Notification.create({
+            receiver: user._id,
+            type: "SYSTEM",
+            title: "Welcome to Bravima! 🎉",
+            message: `Hi ${fullName}, we're excited to have you here! Start exploring our latest collections.`
         });
 
         const userResponse = user.toObject();
@@ -52,11 +72,6 @@ router.post('/signup', validateSignup, async (req, res) => {
     }
 });
 
-/**
- * @route   POST /auth/login
- * @desc    Login user
- * @access  Public
- */
 router.post('/login', validateLogin, (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) return next(err);
@@ -135,7 +150,6 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     try {
         const { id } = req.params;
 
-        // Only allow admin or the user themselves to view their details
         if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
             return res.status(403).json({ message: "Access denied" });
         }
@@ -158,17 +172,14 @@ router.put('/update/:id', isAuthenticated, async (req, res) => {
         const { id } = req.params;
         const updates = req.body;
 
-        // Only allow admin or the user themselves to update
         if (req.user.role !== 'admin' && req.user._id.toString() !== id) {
             return res.status(403).json({ message: "Access denied" });
         }
 
-        // Prevent changing sensitive fields unless admin
         if (req.user.role !== 'admin') {
             delete updates.role;
         }
 
-        // Don't update password here (should be a separate route)
         delete updates.password;
 
         const updatedUser = await Auth.findByIdAndUpdate(id, updates, { new: true }).select('-password');

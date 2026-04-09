@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const reviewSchema = new mongoose.Schema({
     user: {
@@ -17,11 +17,11 @@ const reviewSchema = new mongoose.Schema({
         min: 1,
         max: 5
     },
-    Comment: {
+    comment: {
         type: String,
         required: true,
     }
 });
 
 const Review = mongoose.model("Review", reviewSchema);
-export default Review
+module.exports = Review;

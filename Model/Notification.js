@@ -1,10 +1,6 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
     receiver: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Auth",
@@ -18,13 +14,12 @@ const notificationSchema = new mongoose.Schema({
     type: {
         type: String,
         enum: [
-            "order_created",
-            "order_cancelled",
-            "payment_failed",
-            "stock_low",
-            "product_added",
-            "refund_requested",
-            "system"
+            "ORDER",
+            "PAYMENT",
+            "MESSAGE",
+            "PROMOTION",
+            "SYSTEM",
+            "SECURITY"
         ],
         required: true
     },
@@ -42,10 +37,8 @@ const notificationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         default: null
     },
-    entityModel: {
+    entityType: {
         type: String,
-        enum: ["Order", "Product", "User"],
-        default: null
     },
     isRead: {
         type: Boolean,
@@ -63,4 +56,4 @@ notificationSchema.index({ receiver: 1, isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
-export default Notification
+module.exports = Notification;

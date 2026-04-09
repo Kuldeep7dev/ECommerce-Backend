@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const CATEGORY = {
   MEN: "MEN",
@@ -94,4 +94,4 @@ productsSchema.pre("save", async function () {
 });
 
 const Products = mongoose.model("Products", productsSchema);
-export default Products
+module.exports = Products;
