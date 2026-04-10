@@ -5,9 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var mongoose = require('mongoose');
-// const http = require('http')
-// const { Server } = require("socket.io");
-// const server = http.createServer(app);
 require('./passport');
 
 var indexRouter = require('./routes/index');
@@ -21,6 +18,7 @@ var notificationRouter = require('./routes/notification');
 var reviewRouter = require('./routes/review');
 var addtocartRouter = require('./routes/AddToCart');
 var wishlistRouter = require('./routes/Wishlist');
+var orderRouter = require('./routes/order');
 
 var dotenv = require('dotenv');
 const passport = require('passport');
@@ -42,34 +40,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'uploads')));
-
-// const io = new Server(server, {
-//   cors: {
-//     origin: "http://localhost:8080",
-//     methods: ["GET", "POST"]
-//   }
-// })
-
-// const users = {}
-
-// io.on("connection", (socket) => {
-//   console.log("User connected:", socket.id);
-
-//   socket.on("register", (userId) => {
-//     users[userId] = socket.id
-//   })
-
-//   socket.on("sendNotification", ({ userId, message }) => {
-//     const socketId = users[userId];
-//     if (socketId) {
-//       io.to(socketId).emit("receiveNotification", message)
-//     };
-//   });
-
-//   socket.on("disconnect", () => {
-//     console.log("User disconnected:", socket.id)
-//   })
-// })
 
 app.use(cors({
   origin: "http://localhost:8080",
@@ -103,6 +73,7 @@ app.use('/notifications', notificationRouter);
 app.use('/review', reviewRouter);
 app.use('/add-to-cart', addtocartRouter);
 app.use('/wishlist', wishlistRouter);
+app.use('/order', orderRouter);
 
 
 app.use(function (req, res, next) {
