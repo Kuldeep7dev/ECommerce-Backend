@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const { COUNTRY } = require("../constants/country");
 
 const authSchema = new mongoose.Schema({
     fullName: {
@@ -37,6 +38,17 @@ const authSchema = new mongoose.Schema({
         trim: true
     },
 
+    shippingAddress: {
+        street: { type: String },
+        city: { type: String },
+        state: { type: String },
+        postalCode: { type: String },
+        country: {
+            type: String,
+            enum: Object.values(COUNTRY)
+        }
+    },
+
 }, { timestamps: true });
 
 // 🔐 HASH PASSWORD BEFORE SAVE
@@ -56,7 +68,7 @@ authSchema.pre("save", async function () {
 authSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
-    
+
 
 const Auth = mongoose.model("Auth", authSchema);
 module.exports = Auth;

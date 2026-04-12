@@ -57,7 +57,7 @@ const orderSchema = new mongoose.Schema(
         payment: {
             method: {
                 type: String,
-                enum: ["COD", "RAZORPAY", "STRIPE"],
+                enum: ["COD", "RAZORPAY"],
                 default: "COD",
             },
             status: {
@@ -66,14 +66,6 @@ const orderSchema = new mongoose.Schema(
                 default: "pending",
             },
             transactionId: String,
-        },
-
-        shippingAddress: {
-            address: { type: String, required: true },
-            city: { type: String, required: true },
-            state: { type: String, required: true },
-            postalCode: { type: String, required: true },
-            country: { type: String, required: true },
         },
     },
     { timestamps: true }

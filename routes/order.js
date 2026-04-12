@@ -11,6 +11,18 @@ router.post("/", isAuthenticated, async (req, res) => {
             return res.status(400).json({ message: "No items in order" });
         }
 
+        if (
+            !shippingAddress ||
+            !shippingAddress.address ||
+            !shippingAddress.city ||
+            !shippingAddress.state ||
+            !shippingAddress.postalCode
+        ) {
+            return res.status(400).json({
+                message: "Complete shipping address required"
+            })
+        }
+
         // 🔥 calculate total price (secure way)
         const totalPrice = items.reduce(
             (acc, item) => acc + item.price * item.quantity,

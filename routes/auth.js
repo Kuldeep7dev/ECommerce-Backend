@@ -32,9 +32,42 @@ router.get('/get-count', isAdmin, async (req, res) => {
     }
 })
 
+router.put('/shipping-address/:id', isAuthenticated, async (req, res) => {
+    try {
+        const {
+            street,
+            city,
+            state,
+            postalCode,
+            country
+        } = req.body;
+
+        if (!street || !city || !state || !postalCode, !country) {
+            return res.status(400).json({ message: "All field required" });
+        };
+
+        const shippingAddress = await Auth.findByIdAndUpdate({
+            street,
+            city,
+            state,
+            postalCode,
+            country
+        });
+
+        res.status(200).json({
+            message: "successfully update",
+            user: shippingAddress
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Error to update"
+        })
+    }
+})
+
 router.post('/signup', validateSignup, async (req, res) => {
     try {
-        const { fullName, email, phoneNumber, password, role } = req.body;
+        const { fullName, email, phoneNumber, password } = req.body;
         const user = await Auth.create({
             fullName,
             email,

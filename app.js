@@ -5,6 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
 var mongoose = require('mongoose');
+require('dotenv').config();
 require('./passport');
 
 var indexRouter = require('./routes/index');
@@ -19,13 +20,11 @@ var reviewRouter = require('./routes/review');
 var addtocartRouter = require('./routes/AddToCart');
 var wishlistRouter = require('./routes/Wishlist');
 var orderRouter = require('./routes/order');
+var paymentRouter = require('./routes/paymentRoute');
 
-var dotenv = require('dotenv');
 const passport = require('passport');
 const MongoStore = require('connect-mongo').MongoStore;
 var app = express();
-
-dotenv.config();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -74,6 +73,7 @@ app.use('/review', reviewRouter);
 app.use('/add-to-cart', addtocartRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/order', orderRouter);
+app.use('/payment', paymentRouter);
 
 
 app.use(function (req, res, next) {
