@@ -34,36 +34,43 @@ router.get('/get-count', isAdmin, async (req, res) => {
 
 router.put('/shipping-address/:id', isAuthenticated, async (req, res) => {
     try {
-        const {
-            street,
-            city,
-            state,
-            postalCode,
-            country
-        } = req.body;
+        const { id } = req.params;
+        const { street, city, state, postalCode, country } = req.body;
 
-        if (!street || !city || !state || !postalCode, !country) {
-            return res.status(400).json({ message: "All field required" });
-        };
+        if (
+            req.user.role !== "admin" &&
+            req.user._id.toString() !== id
+        ) {
+            return res.status(403).json({
+                message: "Access denied"
+            });
+        }
 
-        const shippingAddress = await Auth.findByIdAndUpdate({
-            street,
-            city,
-            state,
-            postalCode,
-            country
-        });
+        const user = await Auth.findByIdAndUpdate(
+            id,
+            {
+                shippingAddress: {
+                    street,
+                    city,
+                    state,
+                    postalCode,
+                    country
+                }
+            },
+            { new: true }
+        );
 
         res.status(200).json({
-            message: "successfully update",
-            user: shippingAddress
-        })
+            message: "Address updated successfully",
+            user
+        });
+
     } catch (error) {
         res.status(500).json({
-            message: "Error to update"
-        })
+            message: "Error updating address"
+        });
     }
-})
+});
 
 router.post('/signup', validateSignup, async (req, res) => {
     try {

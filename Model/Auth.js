@@ -39,10 +39,10 @@ const authSchema = new mongoose.Schema({
     },
 
     shippingAddress: {
-        street: { type: String },
-        city: { type: String },
-        state: { type: String },
-        postalCode: { type: String },
+        street: { type: String, trim: true },
+        city: { type: String, trim: true },
+        state: { type: String, trim: true },
+        postalCode: { type: String, trim: true },
         country: {
             type: String,
             enum: Object.values(COUNTRY)
