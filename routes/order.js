@@ -1,6 +1,7 @@
 var express = require('express');
 const { isAuthenticated } = require('../middleware/requireAuth');
-const { default: Order } = require('../Model/Order');
+const Order = require('../Model/Order');
+const Products = require('../Model/Products');
 var router = express.Router();
 
 router.post("/", isAuthenticated, async (req, res) => {
@@ -8,52 +9,53 @@ router.post("/", isAuthenticated, async (req, res) => {
         const { items, shippingAddress, payment } = req.body;
 
         if (!items || items.length === 0) {
-            return res.status(400).json({ message: "No items in order" });
-        }
-
-        if (
-            !shippingAddress ||
-            !shippingAddress.address ||
-            !shippingAddress.city ||
-            !shippingAddress.state ||
-            !shippingAddress.postalCode
-        ) {
             return res.status(400).json({
-                message: "Complete shipping address required"
-            })
+                message: "No items in order"
+            });
         }
 
-        // 🔥 calculate total price (secure way)
-        const totalPrice = items.reduce(
-            (acc, item) => acc + item.price * item.quantity,
-            0
-        );
+        let finalItems = [];
+        let totalPrice = 0;
 
-        const order = new Order({
+        for (const item of items) {
+            const product = await Products.findById(item.productId);
+
+            if (!product) {
+                return res.status(404).json({
+                    message: "Product not found"
+                });
+            }
+
+            const snapshotItem = {
+                productId: product._id,
+                name: product.name,
+                image: product.image,
+                price: product.price,
+                quantity: item.quantity
+            };
+
+            finalItems.push(snapshotItem);
+
+            totalPrice += product.price * item.quantity;
+        }
+
+        const order = await Order.create({
             userId: req.user._id,
-            items,
+            items: finalItems,
             totalPrice,
             shippingAddress,
-            payment,
+            payment
         });
 
-        const savedOrder = await order.save();
-
-        // 🔔 Socket notification
-        req.io.to(req.user._id.toString()).emit("receiveNotification", {
-            title: "Order Placed",
-            message: "Your order has been placed 🎉",
-            createdAt: new Date(),
-            isRead: false,
-        });
-
-        res.status(200).json({
+        res.status(201).json({
             message: "Successful",
-            order: savedOrder
-        })
+            order
+        });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({
+            message: error.message
+        });
     }
 });
 

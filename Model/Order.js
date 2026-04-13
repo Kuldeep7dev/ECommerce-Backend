@@ -8,7 +8,6 @@ const orderItemSchema = new mongoose.Schema(
             required: true,
         },
 
-        // 🔥 SNAPSHOT DATA
         name: {
             type: String,
             required: true,
