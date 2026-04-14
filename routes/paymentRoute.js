@@ -46,10 +46,7 @@ router.post("/create-payment", isAuthenticated, async (req, res) => {
             currency: "INR",
             receipt: "rcpt_" + Date.now()
         });
-        console.log("Yaha gotchi h bhai:", paymentOrder)
 
-
-        // Create Order in DB
         await Order.create({
             userId: req.user._id,
             items: finalItems,
