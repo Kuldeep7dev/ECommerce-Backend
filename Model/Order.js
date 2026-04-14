@@ -46,6 +46,13 @@ const orderSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        shippingAddress: {
+            street: String,
+            city: String,
+            state: String,
+            postalCode: String,
+            country: String,
+        },
 
         orderStatus: {
             type: String,
@@ -64,6 +71,7 @@ const orderSchema = new mongoose.Schema(
                 enum: ["pending", "paid", "failed"],
                 default: "pending",
             },
+            razorpayOrderId: String,
             transactionId: String,
         },
     },
@@ -71,4 +79,4 @@ const orderSchema = new mongoose.Schema(
 );
 
 const Order = mongoose.model("Order", orderSchema);
-export default Order;
+export default Order

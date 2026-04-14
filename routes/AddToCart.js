@@ -145,4 +145,14 @@ router.delete('/:productId', isAuthenticated, async (req, res) => {
     }
 });
 
+router.delete('/clear', isAuthenticated, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        await Cart.findOneAndDelete({ userId });
+        res.status(200).json({ message: "Cart cleared successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

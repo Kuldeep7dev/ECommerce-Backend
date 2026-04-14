@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const CATEGORY = {
   MEN: "MEN",
@@ -36,6 +36,7 @@ const productsSchema = new mongoose.Schema(
     stock: {
       type: String,
       required: true,
+      min: 0
     },
     brand: {
       type: String,
@@ -94,4 +95,4 @@ productsSchema.pre("save", async function () {
 });
 
 const Products = mongoose.model("Products", productsSchema);
-module.exports = Products;
+export default Products

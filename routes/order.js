@@ -77,7 +77,6 @@ router.get("/my", isAuthenticated, async (req, res) => {
 });
 
 
-// 🔍 GET SINGLE ORDER
 router.get("/:id", isAuthenticated, async (req, res) => {
     try {
         const order = await Order.findById(req.params.id);
