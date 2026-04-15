@@ -21,6 +21,7 @@ var addtocartRouter = require('./routes/AddToCart');
 var wishlistRouter = require('./routes/Wishlist');
 var orderRouter = require('./routes/order');
 var paymentRouter = require('./routes/paymentRoute');
+var contactRouter = require('./routes/contact');
 
 const passport = require('passport');
 const MongoStore = require('connect-mongo').MongoStore;
@@ -74,6 +75,7 @@ app.use('/add-to-cart', addtocartRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/order', orderRouter);
 app.use('/payment', paymentRouter);
+app.use('/contact', contactRouter);
 
 
 app.use(function (req, res, next) {

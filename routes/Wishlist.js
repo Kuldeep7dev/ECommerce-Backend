@@ -1,10 +1,10 @@
 var express = require('express');
 const { isAuthenticated } = require('../middleware/requireAuth');
-const Wishlist = require('../Model/Wishlist');
-const Products = require('../Model/Products');
-const Auth = require('../Model/Auth');
-const Notification = require('../Model/Notification');
+const { default: Products } = require('../Model/Products');
+const { default: Auth } = require('../Model/Auth');
+const { default: Notification } = require('../Model/Notification');
 const { emitToAdmins } = require('../utils/socket');
+const { default: Wishlist } = require('../Model/Wishlist');
 var router = express.Router();
 
 router.get('/', isAuthenticated, async (req, res) => {

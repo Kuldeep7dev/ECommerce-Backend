@@ -41,6 +41,9 @@ router.post("/create-payment", isAuthenticated, async (req, res) => {
 
         const razorpay = getRazorpayClient();
 
+        console.log("Total" ,total);
+        
+
         const paymentOrder = await razorpay.orders.create({
             amount: total * 100,
             currency: "INR",
