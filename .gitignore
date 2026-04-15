@@ -7,9 +7,6 @@ logs/
 *.log
 npm-debug.log*
 
-uploads/
-public/uploads/
-uploads/
 dist/
 build/
 
