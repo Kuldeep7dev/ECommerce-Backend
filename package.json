@@ -18,7 +18,6 @@
     "express-session": "^1.19.0",
     "express-validator": "^7.3.2",
     "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.5",
     "morgan": "~1.9.1",
@@ -27,6 +26,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pug": "^3.0.4",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.3"
   },
