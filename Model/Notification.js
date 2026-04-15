@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const notificationSchema = new mongoose.Schema({
     receiver: {
@@ -56,4 +56,4 @@ notificationSchema.index({ receiver: 1, isRead: 1 });
 notificationSchema.index({ createdAt: -1 });
 
 const Notification = mongoose.model("Notification", notificationSchema);
-module.exports = Notification;
+export default Notification

@@ -1,7 +1,7 @@
 var express = require('express');
 const { isAuthenticated } = require('../middleware/requireAuth');
-const Order = require('../Model/Order');
-const Products = require('../Model/Products');
+const { default: Order } = require('../Model/Order');
+const { default: Products } = require('../Model/Products');
 var router = express.Router();
 
 router.post("/", isAuthenticated, async (req, res) => {

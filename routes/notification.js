@@ -1,6 +1,6 @@
 var express = require('express');
 const { isAuthenticated } = require('../middleware/requireAuth');
-const Notification = require('../Model/Notification');
+const { default: Notification } = require('../Model/Notification');
 const { emitToUser } = require('../utils/socket');
 var router = express.Router();
 
