@@ -41,8 +41,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'uploads')));
 
+
+const allowedOrigins = [
+  "https://bravima.vercel.app",
+  "http://localhost:8080",
+  "http://localhost:5173",
+  "http://localhost:9090"
+];
+
 app.use(cors({
-  origin: "https://bravima.vercel.app",
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -56,8 +70,8 @@ app.use(require('express-session')({
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    sameSite: "lax",
-    secure: false
+    sameSite: process.env.NODE_ENV === 'production' ? "none" : "lax",
+    secure: process.env.NODE_ENV === 'production'
   }
 }));
 

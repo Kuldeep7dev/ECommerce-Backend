@@ -4,7 +4,7 @@ const { validateSignup, validateLogin } = require('../middleware/validate');
 const { isAuthenticated, isAdmin } = require('../middleware/requireAuth');
 const handleError = require('../utils/handleError');
 const { default: Auth } = require('../Model/Auth');
-const Notification = require('../Model/Notification');
+const { default: Notification } = require('../Model/Notification');
 
 const router = express.Router();
 
