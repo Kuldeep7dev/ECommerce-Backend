@@ -1,5 +1,5 @@
 const passport = require('passport');
-const Auth = require('./Model/Auth');
+const { default: Auth } = require('./Model/Auth');
 const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(
